@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculator - Add</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; max-width: 500px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input[type="text"] { width: 100%; padding: 8px; box-sizing: border-box; }
+        button { padding: 10px 15px; background-color: #007bff; color: white; border: none; cursor: pointer; }
+        button:hover { background-color: #0056b3; }
+        .result { margin-top: 20px; font-size: 1.2em; color: green; }
+        .error { margin-top: 20px; font-size: 1em; color: red; }
+    </style>
+</head>
+<body>
+    <h2>Add Two Numbers</h2>
+    <div class="form-group">
+        <label for="numA">Number A:</label>
+        <input type="text" id="numA" placeholder="Enter first number">
+    </div>
+    <div class="form-group">
+        <label for="numB">Number B:</label>
+        <input type="text" id="numB" placeholder="Enter second number">
+    </div>
+    <button id="addBtn" onclick="performAdd()">Add</button>
+
+    <div id="result" class="result"></div>
+    <div id="error" class="error"></div>
+
+    <script>
+        async function performAdd() {
+            const inputA = document.getElementById('numA').value.trim();
+            const inputB = document.getElementById('numB').value.trim();
+            const resultDiv = document.getElementById('result');
+            const errorDiv = document.getElementById('error');
+
+            resultDiv.innerText = '';
+            errorDiv.innerText = '';
+
+            if (inputA === '' || inputB === '' || isNaN(Number(inputA)) || isNaN(Number(inputB))) {
+                errorDiv.innerText = 'Please enter valid numeric inputs.';
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/v1/add', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ a: Number(inputA), b: Number(inputB) })
+                });
+
+                if (!response.ok) {
+                    errorDiv.innerText = 'Invalid input provided.';
+                    return;
+                }
+
+                const data = await response.json();
+                resultDiv.innerText = `Result: ${data.result}`;
+            } catch (err) {
+                errorDiv.innerText = 'Network error or server unavailable.';
+            }
+        }
+    </script>
+</body>
+</html>
